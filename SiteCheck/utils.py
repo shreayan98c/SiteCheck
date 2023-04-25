@@ -1,4 +1,5 @@
 import requests
+from PIL import Image
 from bs4 import BeautifulSoup
 
 
@@ -32,3 +33,17 @@ def extract_images(url):
         if src and src.startswith('http'):
             images.append(src)
     return images
+
+
+def check_image(url):
+    """
+    Checks if the image is valid or broken.
+    :param url: src attribute of the image url to check validity
+    :return:
+    """
+    response = requests.get(url, stream=True)
+    if response.status_code == 200:
+        with Image.open(response.raw) as img:
+            return img.format
+    else:
+        return None
