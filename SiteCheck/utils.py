@@ -39,7 +39,7 @@ def check_image(url):
     """
     Checks if the image is valid or broken.
     :param url: src attribute of the image url to check validity
-    :return:
+    :return: True if image is valid, False otherwise
     """
     response = requests.get(url, stream=True)
     if response.status_code == 200:
