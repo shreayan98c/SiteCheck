@@ -1,4 +1,5 @@
 import re
+import os
 import sys
 import logging
 import requests
@@ -52,22 +53,34 @@ def check_image(img_tag, url):
     # if no alt-text is provided, write a warning to the warning file
     if alt_text is None:
         warning_message = [f'Please add the alt-text for the image on line {img_line} with {img_tag}']
-        writelines('warnings.txt', warning_message)
+        try:
+            os.mkdir('outputs')
+        except:
+            pass
+        writelines('outputs/warnings.txt', warning_message)
 
     # if image is relatively pathed - add the base url to the relative path and check for it
     if not img_tag.get('src').startswith('http'):
         img_tag['src'] = parse.urljoin(url, img_tag['src'])
 
     # hit the url of the image and check the status code
-    response = requests.get(img_tag['src'], stream=True)
-    if response.status_code == 200:
+    response = None
+    try:
+        response = requests.get(img_tag['src'], stream=True)
+    except:
+        print('Unable to access the image on the server!')
+    if response and response.status_code == 200:
         with Image.open(response.raw) as img:
             print("Image works!, Size:", img.size)
     else:
         print("Image does not work!")
         # write error to the error file
         error_message = [f'Broken image found on line {img_line} with {img_tag}']
-        writelines('errors.txt', error_message)
+        try:
+            os.mkdir('outputs')
+        except:
+            pass
+        writelines('outputs/errors.txt', error_message)
 
 
 def get_nonlocal_links(url):
@@ -124,20 +137,6 @@ def get_links(url):
     return list(parse_links(url, res.read()))
 
 
-def get_nonlocal_links(url):
-    """
-    Get a list of links on the page specified by the url,
-    but only keep non-local links and non self-references.
-    Return a list of (link, title) pairs, just like get_links()
-    """
-    links = get_links(url)
-    filtered = []
-    for link in links:
-        if parse.urlparse(link[0]).hostname != parse.urlparse(url).hostname:
-            filtered.append(link)
-    return filtered
-
-
 def crawl(root, wanted_content=None, within_domain=True, num_link=10, keywords=None):
     """
     Crawl the url specified by `root`.
@@ -168,10 +167,6 @@ def crawl(root, wanted_content=None, within_domain=True, num_link=10, keywords=N
             visited.add(url)
             visitlog.debug(url)
 
-            for ex in extract_information(url, html):
-                extracted.append(ex)
-                extractlog.debug(ex)
-
             for (rank, link), title in parse_links_sorted(url, html, keywords):
                 if (link in visited) or (parse.urlparse(link) == parse.urlparse(root)) or (
                         within_domain and parse.urlparse(link).hostname != parse.urlparse(url).hostname):
@@ -184,22 +179,16 @@ def crawl(root, wanted_content=None, within_domain=True, num_link=10, keywords=N
     return visited, extracted
 
 
-def extract_information(address, html):
-    """
-    Extract contact information from html, returning a list of (url, category, content) pairs,
-    where category is one of PHONE, ADDRESS, EMAIL
-    """
-    results = []
-    for match in re.findall(r'\d\d\d-\d\d\d-\d\d\d\d', str(html)):
-        results.append((address, 'PHONE', match))
-
-    for match in re.findall(r'([a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z0-9.-]+)', str(html)):
-        results.append((address, 'EMAIL', match))
-
-    for match in re.findall(r'([A-Z]([a-z])+(\.?)(\x20[A-Z]([a-z])+){0,2},\s[A-Za-z]+\.{0,1}\s(?!0{5})\d{5})',
-                            str(html)):
-        results.append((address, 'ADDRESS', match[0]))
-    return results
+def build_url_hierarchy(urls):
+    hierarchy = {}
+    for url in urls:
+        parts = url.split('/')
+        node = hierarchy
+        for part in parts[1:]:
+            if part not in node:
+                node[part] = {}
+            node = node[part]
+    return hierarchy
 
 
 def writelines(filename, data):
@@ -222,7 +211,3 @@ def main():
     visited, extracted = crawl(site, wanted_content=[], within_domain=True, num_link=num_l, keywords=keywords)
     writelines('visited.txt', visited)
     writelines('extracted.txt', extracted)
-
-
-if __name__ == '__main__':
-    main()
