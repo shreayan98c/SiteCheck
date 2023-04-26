@@ -39,15 +39,17 @@ def extract_images(html):
     return images
 
 
-def check_image(img_tag, url, html):
+def check_image(img_tag, url):
     """
     Checks if the image is valid or broken.
     :param img_tag: src attribute of the image url to check validity
+    :param url: url of the website
     :return: True if image is valid, False otherwise
     """
     alt_text = img_tag.get('alt')
     img_line = img_tag.sourceline
 
+    # if no alt-text is provided, write a warning to the warning file
     if alt_text is None:
         warning_message = [f'Please add the alt-text for the image on line {img_line} with {img_tag}']
         writelines('warnings.txt', warning_message)
@@ -61,13 +63,11 @@ def check_image(img_tag, url, html):
     if response.status_code == 200:
         with Image.open(response.raw) as img:
             print("Image works!, Size:", img.size)
-            return
     else:
         print("Image does not work!")
         # write error to the error file
         error_message = [f'Broken image found on line {img_line} with {img_tag}']
         writelines('errors.txt', error_message)
-        return
 
 
 def get_nonlocal_links(url):

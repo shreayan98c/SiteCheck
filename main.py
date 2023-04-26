@@ -15,8 +15,8 @@ def main(url: str):
     print(f'{len(images)} links found')
     writelines('images.txt', images)
 
-    for image in images[:1]:
-        check_image(img_tag=image, url=url, html=soup)
+    for image in images:
+        check_image(img_tag=image, url=url)
 
 
 if __name__ == '__main__':
