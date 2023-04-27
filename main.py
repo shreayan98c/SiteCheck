@@ -36,6 +36,16 @@ def main(url: str):
     hierarchy = build_url_hierarchy(local_links)
     print(hierarchy)
 
+    image1_path = 'test_images/jhu_logo_1.png'
+    image2_path = 'test_images/jhu_logo_2.png'
+
+    similarity = compare_images(image1_path, image2_path)
+    print('Similarity:', similarity)
+    similarity = compare_images(image1_path, image1_path)
+    print('Similarity:', similarity)
+    similarity = compare_images(image2_path, image2_path)
+    print('Similarity:', similarity)
+
 
 if __name__ == '__main__':
     url = "https://www.cs.jhu.edu/~schaud31/"

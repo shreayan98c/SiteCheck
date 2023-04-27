@@ -4,9 +4,12 @@ import sys
 import logging
 import requests
 from PIL import Image
+from skimage import io
 from bs4 import BeautifulSoup
 from queue import PriorityQueue
 from urllib import parse, request
+import skimage.metrics as metrics
+from skimage.transform import resize
 
 logging.basicConfig(level=logging.DEBUG, filename='output.log', filemode='w')
 
@@ -189,6 +192,33 @@ def build_url_hierarchy(urls):
                 node[part] = {}
             node = node[part]
     return hierarchy
+
+
+def compare_images(image1_path, image2_path):
+    """
+    Compare two images using the SSIM index metric
+    :param image1_path: path to the first image
+    :param image2_path: path to the second image
+    :return: SSIM index value
+    """
+    # Load the images
+    image1 = io.imread(image1_path)
+    image2 = io.imread(image2_path)
+
+    # slice off the alpha channels
+    if len(image1.shape) > 2 and image1.shape[2] == 4:
+        image1 = image1[:, :, :3]
+    if len(image2.shape) > 2 and image2.shape[2] == 4:
+        image2 = image2[:, :, :3]
+
+    # resize the images to 500x500
+    image1_resized = resize(image1, (500, 500))
+    image2_resized = resize(image2, (500, 500))
+
+    # Calculate the SSIM index
+    ssim = metrics.structural_similarity(image1_resized, image2_resized, multichannel=True)
+
+    return ssim
 
 
 def writelines(filename, data):
