@@ -34,7 +34,7 @@ def main(url: str):
     print(nonlocal_links)
 
     hierarchy = build_url_hierarchy(local_links)
-    print(hierarchy)
+    print(json.dumps(hierarchy, indent=4))
 
     image1_path = 'test_images/jhu_logo_1.png'
     image2_path = 'test_images/jhu_logo_2.png'
