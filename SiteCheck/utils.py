@@ -222,6 +222,22 @@ def compare_images(image1_path, image2_path):
     return ssim
 
 
+def get_tag_counts(soup):
+    """
+    Get a dictionary of tag counts from a BeautifulSoup object
+    :param soup: BeautifulSoup object
+    :return: dictionary of tag counts
+    """
+    tag_counts = {}
+    for tag in soup.find_all():
+        tag_name = tag.name
+        if tag_name in tag_counts:
+            tag_counts[tag_name] += 1
+        else:
+            tag_counts[tag_name] = 1
+    return tag_counts
+
+
 def writelines(filename, data):
     with open(filename, 'w') as fout:
         for d in data:

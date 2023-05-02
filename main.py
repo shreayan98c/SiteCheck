@@ -1,3 +1,4 @@
+import time
 from SiteCheck.utils import *
 
 
@@ -9,8 +10,11 @@ def main(url: str):
     """
     print(f"Parsing URL: {url}")
 
+    start_time = time.time()
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
+    response_time = time.time() - start_time
+    print(f'Loading the page took {response_time} seconds')
     try:
         os.mkdir('outputs')
     except:
@@ -23,15 +27,24 @@ def main(url: str):
     print(f'{len(images)} images found')
     writelines('outputs/images.txt', images)
 
+    start_time = time.time()
     for image in images:
         check_image(img_tag=image, url=url)
+    images_check = time.time() - start_time
+    print(f'Checking the images took {images_check} seconds')
+
+    tag_counts = get_tag_counts(soup)
+    tag_counts = dict(sorted(tag_counts.items(), key=lambda item: item[1], reverse=True))
+    # filter only tags with more than 1 occurrence, ex: html, body, head, etc.
+    tag_counts = {k: v for k, v in tag_counts.items() if v > 1}
+    print(f'Tag counts: {tag_counts}')
 
     links = get_links(url)
     local_links = [link[0] for link in links if link[0].startswith(url) and not link[0].split('/')[-1].startswith('#')]
     nonlocal_links = get_nonlocal_links(url)
     nonlocal_links = [link[0] for link in nonlocal_links]
-    print(local_links)
-    print(nonlocal_links)
+    print(f'Local links: {local_links}')
+    print(f'Nonlocal links: {nonlocal_links}')
 
     hierarchy = build_url_hierarchy(local_links)
     print(json.dumps(hierarchy, indent=4))
