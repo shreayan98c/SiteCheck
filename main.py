@@ -39,6 +39,10 @@ def main(url: str):
     tag_counts = {k: v for k, v in tag_counts.items() if v > 1}
     print(f'Tag counts: {tag_counts}')
 
+    lang_counts = get_lang_counts(soup)
+    lang_counts = dict(sorted(lang_counts.items(), key=lambda item: item[1], reverse=True))
+    print(f'Language counts: {lang_counts}')
+
     links = get_links(url)
     local_links = [link[0] for link in links if link[0].startswith(url) and not link[0].split('/')[-1].startswith('#')]
     nonlocal_links = get_nonlocal_links(url)

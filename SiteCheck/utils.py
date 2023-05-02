@@ -238,6 +238,23 @@ def get_tag_counts(soup):
     return tag_counts
 
 
+def get_lang_counts(soup):
+    """
+    Get a dictionary of language counts from a BeautifulSoup object
+    :param soup: BeautifulSoup object
+    :return: dictionary of language counts
+    """
+    language_counts = {}
+    for tag in soup.find_all():
+        if tag.has_attr('lang'):
+            lang = tag['lang']
+            if lang in language_counts:
+                language_counts[lang] += 1
+            else:
+                language_counts[lang] = 1
+    return language_counts
+
+
 def writelines(filename, data):
     with open(filename, 'w') as fout:
         for d in data:
