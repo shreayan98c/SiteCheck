@@ -7,9 +7,11 @@ import requests
 from PIL import Image
 from skimage import io
 from bs4 import BeautifulSoup
+from selenium import webdriver
 from queue import PriorityQueue
 from urllib import parse, request
 import skimage.metrics as metrics
+from axe_selenium_python import Axe
 from skimage.transform import resize
 
 logging.basicConfig(level=logging.DEBUG, filename='output.log', filemode='w')
@@ -253,6 +255,41 @@ def get_lang_counts(soup):
             else:
                 language_counts[lang] = 1
     return language_counts
+
+
+def eval_accessibility(url):
+    """
+    Get the accessibility violations for a given URL using the Axe engine
+    :param url: URL to calculate the accessibility score for
+    :return: accessibility score
+    """
+
+    # Initialize the Axe engine and configure it to run in Chrome
+    # driver = webdriver.Firefox(executable_path=r'C:\NonOSFiles\BlueJayCodes\IRWA\geckodriver-v0.33.0-win32\geckodriver.exe')
+    driver = webdriver.Chrome(executable_path=r'C:\NonOSFiles\BlueJayCodes\IRWA\chromedriver_win32\chromedriver.exe')
+    driver.get(url)
+    axe = Axe(driver)
+    axe.inject()
+
+    # Analyze the page using Axe
+    results = axe.run()
+
+    # close the browser
+    driver.close()
+
+    violations = []
+
+    if results["violations"] is None:
+        return None
+
+    for violation in results["violations"]:
+        vio_id = violation["id"]
+        description = violation["description"]
+        vio_help = violation["help"]
+        impact = violation["impact"]
+        violations.append((vio_id, description, vio_help, impact))
+
+    return violations
 
 
 def writelines(filename, data):

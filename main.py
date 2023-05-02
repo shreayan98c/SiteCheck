@@ -50,6 +50,9 @@ def main(url: str):
     print(f'Local links: {local_links}')
     print(f'Nonlocal links: {nonlocal_links}')
 
+    violations = eval_accessibility(url)
+    print(f'Accessibility violations: {violations}')
+
     hierarchy = build_url_hierarchy(local_links)
     print(json.dumps(hierarchy, indent=4))
 
@@ -57,10 +60,6 @@ def main(url: str):
     image2_path = 'test_images/jhu_logo_2.png'
 
     similarity = compare_images(image1_path, image2_path)
-    print('Similarity:', similarity)
-    similarity = compare_images(image1_path, image1_path)
-    print('Similarity:', similarity)
-    similarity = compare_images(image2_path, image2_path)
     print('Similarity:', similarity)
 
 
