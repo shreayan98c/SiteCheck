@@ -9,7 +9,7 @@ from skimage import io
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from queue import PriorityQueue
-from urllib import parse, request
+from urllib import parse, request, error
 import skimage.metrics as metrics
 from axe_selenium_python import Axe
 from skimage.transform import resize
@@ -153,6 +153,7 @@ def crawl(root, wanted_content=None, within_domain=True, num_link=10, keywords=N
     queue.put((relevance_func(root, keywords), root))
 
     visited = set()
+    inaccessible = set()
     extracted = []
 
     wanted_content = [] if wanted_content is None else wanted_content
@@ -173,16 +174,33 @@ def crawl(root, wanted_content=None, within_domain=True, num_link=10, keywords=N
             visited.add(url)
             visitlog.debug(url)
 
-            for (rank, link), title in parse_links_sorted(url, html, keywords):
-                if (link in visited) or (parse.urlparse(link) == parse.urlparse(root)) or (
-                        within_domain and parse.urlparse(link).hostname != parse.urlparse(url).hostname):
-                    continue
-                queue.put((rank, link))
-
+            if parse.urlparse(url).hostname == parse.urlparse(root).hostname:
+                for (rank, link), title in parse_links_sorted(url, html, keywords):
+                    if (link in visited) or (link in inaccessible) or (parse.urlparse(link) == parse.urlparse(root)):
+                        continue
+                    queue.put((rank, link))
+                    
+        except error.HTTPError as e:
+            inaccessible.add(url)
+            if not os.path.exists('outputs'): os.mkdir('outputs')
+            if e.code == 401:
+                warning_message = [f'Accessing link {url} requires authentication, is this intended?']
+                writelines('outputs/warnings.txt', warning_message)
+            else:
+                error_message = [f'Opening link {url} resulted in HTTP Error with status code {e.code}: {e.reason}']
+                writelines('outputs/errors.txt', error_message)
+                
+        except error.URLError as e:
+            inaccessible.add(url)
+            if not os.path.exists('outputs'): os.mkdir('outputs')
+            error_message = [f'Opening link {url} resulted in URL Error: {e.reason}']
+            writelines('outputs/errors.txt', error_message)
+            
         except Exception as e:
+            inaccessible.add(url)
             print(e, url)
 
-    return visited, extracted
+    return visited, extracted, inaccessible
 
 
 def build_url_hierarchy(urls):
@@ -293,7 +311,7 @@ def eval_accessibility(url):
 
 
 def writelines(filename, data):
-    with open(filename, 'w') as fout:
+    with open(filename, 'a') as fout:
         for d in data:
             print(d, file=fout)
 
@@ -309,6 +327,8 @@ def main():
     nonlocal_links = get_nonlocal_links(site)
     writelines('nonlocal.txt', nonlocal_links)
 
+    print(1)
     visited, extracted = crawl(site, wanted_content=[], within_domain=True, num_link=num_l, keywords=keywords)
     writelines('visited.txt', visited)
     writelines('extracted.txt', extracted)
+    
