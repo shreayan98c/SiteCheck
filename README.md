@@ -26,6 +26,10 @@ To view the interface through the flask app:
 ```bash
 flask run
 ```
+OR
+```bash
+python app.py
+```
 And open the localhost link (http://127.0.0.1:5000/) in your browser.
 
 
