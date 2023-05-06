@@ -22,6 +22,14 @@ Update the path in the file utils.py in the function eval_accessibility() to the
 
 ## Usage
 
+To view the interface through the flask app:
+```bash
+flask run
+```
+And open the localhost link (http://127.0.0.1:5000/) in your browser.
+
+
+To run the test functions without the interface:
 ```bash
 python main.py
 ```
@@ -29,4 +37,3 @@ python main.py
 ## License
 
 This project is licensed under the terms of the MIT license.
-
