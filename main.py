@@ -8,6 +8,7 @@ def main(url: str):
     :param url: url of the website to parse and test
     :return: None
     """
+    api = {}
     print(f"Parsing URL: {url}")
 
     start_time = time.time()
@@ -15,15 +16,18 @@ def main(url: str):
     soup = BeautifulSoup(response.text, 'html.parser')
     response_time = time.time() - start_time
     print(f'Loading the page took {response_time} seconds')
+    api['load_page_time'] = response_time
     try:
         os.mkdir('outputs')
     except:
         pass
 
     links = extract_links(soup)
+    api['links'] = links
     print(f'{len(links)} links found')
     writelines('outputs/links.txt', links)
     images = extract_images(soup)
+    api['images'] = images
     print(f'{len(images)} images found')
     writelines('outputs/images.txt', images)
 
@@ -32,16 +36,19 @@ def main(url: str):
         check_image(img_tag=image, url=url)
     images_check = time.time() - start_time
     print(f'Checking the images took {images_check} seconds')
+    api['check_imgs_time'] = images_check
 
     tag_counts = get_tag_counts(soup)
     tag_counts = dict(sorted(tag_counts.items(), key=lambda item: item[1], reverse=True))
     # filter only tags with more than 1 occurrence, ex: html, body, head, etc.
     tag_counts = {k: v for k, v in tag_counts.items() if v > 1}
     print(f'Tag counts: {tag_counts}')
+    api['tag_counts'] = tag_counts
 
     lang_counts = get_lang_counts(soup)
     lang_counts = dict(sorted(lang_counts.items(), key=lambda item: item[1], reverse=True))
     print(f'Language counts: {lang_counts}')
+    api['lang_counts'] = lang_counts
 
     links = get_links(url)
     local_links = [link[0] for link in links if link[0].startswith(url) and not link[0].split('/')[-1].startswith('#')]
