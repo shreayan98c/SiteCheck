@@ -2,6 +2,8 @@ import re
 import os
 import sys
 import json
+import time
+import pickle
 import logging
 import requests
 from PIL import Image
@@ -313,17 +315,16 @@ def writelines(filename, data):
             print(d, file=fout)
 
 
+def save_object(obj, filename):
+    with open(filename, 'wb') as outp:  # Overwrites any existing file.
+        pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
+
+
 def main():
     site = sys.argv[1]
-    num_l = 1000
-    keywords = ['book', 'homework', 'hw', 'assignment']
 
     links = get_links(site)
     writelines('links.txt', links)
 
     nonlocal_links = get_nonlocal_links(site)
     writelines('nonlocal.txt', nonlocal_links)
-
-    writelines('visited.txt', visited)
-    writelines('extracted.txt', extracted)
-    
