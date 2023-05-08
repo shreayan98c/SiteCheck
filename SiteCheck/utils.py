@@ -46,24 +46,24 @@ def extract_images(html):
     return images
 
 
-def check_image(img_tag, url):
+def check_image(img_tag, url, working_imgs, warnings, errors):
     """
     Checks if the image is valid or broken.
     :param img_tag: src attribute of the image url to check validity
     :param url: url of the website
-    :return: True if image is valid, False otherwise
+    :param working_imgs: list of sizes working images
+    :param warnings: list of warnings
+    :param errors: list of errors
+    :return: list of working images, list of warnings, list of errors
     """
     alt_text = img_tag.get('alt')
     img_line = img_tag.sourceline
 
     # if no alt-text is provided, write a warning to the warning file
     if alt_text is None:
-        warning_message = [f'Please add the alt-text for the image on line {img_line} with {img_tag}']
-        try:
-            os.mkdir('outputs')
-        except:
-            pass
-        writelines('outputs/warnings.txt', warning_message)
+        warning_message = f'Please add the alt-text for the image on line {img_line} with {img_tag}'
+        warnings.append(warning_message)
+        # writelines('outputs/warnings.txt', warning_message)
 
     # if image is relatively pathed - add the base url to the relative path and check for it
     if not img_tag.get('src').startswith('http'):
@@ -74,19 +74,16 @@ def check_image(img_tag, url):
     try:
         response = requests.get(img_tag['src'], stream=True)
     except:
-        print('Unable to access the image on the server!')
+        errors.append(f'Unable to access the image on the server')
     if response and response.status_code == 200:
         with Image.open(response.raw) as img:
-            print("Image works!, Size:", img.size)
+            working_imgs.append(img.size)
     else:
-        print("Image does not work!")
         # write error to the error file
-        error_message = [f'Broken image found on line {img_line} with {img_tag}']
-        try:
-            os.mkdir('outputs')
-        except:
-            pass
-        writelines('outputs/errors.txt', error_message)
+        error_message = f'Broken image found on line {img_line} with {img_tag}'
+        errors.append(error_message)
+        # writelines('outputs/errors.txt', error_message)
+    return working_imgs, warnings, errors
 
 
 def get_nonlocal_links(url):
@@ -327,8 +324,6 @@ def main():
     nonlocal_links = get_nonlocal_links(site)
     writelines('nonlocal.txt', nonlocal_links)
 
-    print(1)
-    visited, extracted = crawl(site, wanted_content=[], within_domain=True, num_link=num_l, keywords=keywords)
     writelines('visited.txt', visited)
     writelines('extracted.txt', extracted)
     
