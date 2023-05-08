@@ -1,4 +1,3 @@
-import time
 from SiteCheck.utils import *
 
 
@@ -19,7 +18,7 @@ def main(url: str, depth: int, visited: set, api_responses: list):
 
     visited.add(url)
 
-    api = {}
+    api = {'current_url': url}
 
     start_time = time.time()
     response = requests.get(url)
@@ -28,7 +27,7 @@ def main(url: str, depth: int, visited: set, api_responses: list):
     api['load_page_time'] = response_time
 
     links = extract_links(soup)
-    api['links'] = json.dumps(links)
+    api['links'] = links
     writelines('outputs/links.txt', links)
     images = extract_images(soup)
     api['images'] = json.dumps([str_repr.__repr__() for str_repr in images])
@@ -40,30 +39,30 @@ def main(url: str, depth: int, visited: set, api_responses: list):
         working_imgs, warnings, errors = check_image(img_tag=image, url=url, working_imgs=working_imgs,
                                                      warnings=warnings, errors=errors)
     images_check = time.time() - start_time
-    api['check_imgs_time'] = json.dumps(images_check)
+    api['check_imgs_time'] = images_check
 
     tag_counts = get_tag_counts(soup)
     tag_counts = dict(sorted(tag_counts.items(), key=lambda item: item[1], reverse=True))
     # filter only tags with more than 1 occurrence, ex: html, body, head, etc.
     tag_counts = {k: v for k, v in tag_counts.items() if v > 1}
-    api['tag_counts'] = json.dumps(tag_counts)
+    api['tag_counts'] = tag_counts
 
     lang_counts = get_lang_counts(soup)
     lang_counts = dict(sorted(lang_counts.items(), key=lambda item: item[1], reverse=True))
-    api['lang_counts'] = json.dumps(lang_counts)
+    api['lang_counts'] = lang_counts
 
     links = get_links(url)
     local_links = [link[0] for link in links if link[0].startswith(url) and not link[0].split('/')[-1].startswith('#')]
     nonlocal_links = get_nonlocal_links(url)
     nonlocal_links = [link[0] for link in nonlocal_links]
-    api['local_links'] = json.dumps(local_links)
-    api['nonlocal_links'] = json.dumps(nonlocal_links)
+    api['local_links'] = local_links
+    api['nonlocal_links'] = nonlocal_links
 
     violations = eval_accessibility(url)
-    api['accessibility_violations'] = json.dumps(violations)
+    api['accessibility_violations'] = violations
 
     hierarchy = build_url_hierarchy(local_links)
-    api['hierarchy'] = json.dumps(hierarchy)
+    api['hierarchy'] = hierarchy
 
     api_responses.append(api)
 
@@ -77,4 +76,5 @@ if __name__ == '__main__':
     url = "https://www.cs.jhu.edu/~schaud31/"
     depth = 2
     api_response = main(url, depth, set(), [])
-    print(api_response)
+    save_object(api_response, 'api.pkl')
+    print('Saved api response to api.pkl')
