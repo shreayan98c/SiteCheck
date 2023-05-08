@@ -8,7 +8,6 @@ def main(url: str, depth, visited: set, api_responses: list):
     :param url: url of the website to parse and test
     :param depth: depth of the recursion
     :param visited: set of visited urls
-    :param links_to_visit: list of links
     :param api_responses: list of api responses
     :return: response across all the pages
     """
