@@ -1,4 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
 <h3 style="margin-top:3%;">URL submitted: {{ input_url }}</h3>
+<h3 style="margin-top:3%;">Depth: {{ depth }}</h3>
+{% for response in responses %}
+<p> {{ response }} </p>
+{% endfor %}
 {% endblock %}

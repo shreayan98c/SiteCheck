@@ -2,7 +2,7 @@ import time
 from SiteCheck.utils import *
 
 
-def main(url: str, depth, visited: set, api_responses: list):
+def main(url: str, depth: int, visited: set, api_responses: list):
     """
     Parse the given URL, extract the links and images, does preprocessing and writes the results to the outputs directory.
     :param url: url of the website to parse and test
@@ -72,15 +72,9 @@ def main(url: str, depth, visited: set, api_responses: list):
 
     return api_responses
 
-    # image1_path = 'test_images/jhu_logo_1.png'
-    # image2_path = 'test_images/jhu_logo_2.png'
-    # similarity = compare_images(image1_path, image2_path)
-    # print('Similarity:', similarity)
-
 
 if __name__ == '__main__':
     url = "https://www.cs.jhu.edu/~schaud31/"
     depth = 2
-    # url = "https://www.w3schools.com/tags/tryit.asp?filename=tryhtml_image_test"
     api_response = main(url, depth, set(), [])
     print(api_response)
