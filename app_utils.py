@@ -17,9 +17,13 @@ def save_page_dashboard(landing_page):
 
     local_links = len(landing_page['local_links'])
     nonlocal_links = len(landing_page['nonlocal_links'])
+    if local_links == 0 and nonlocal_links == 0:
+        local_links = 1
+
     # plot a pie chart with labels as local and nonlocal links
     colors = sns.color_palette('bright')[0:2]
-    plt.pie([local_links, nonlocal_links], labels=['Local Links', 'Nonlocal Links'], colors=colors, autopct='%1.1f%%')
+    plt.pie([local_links, nonlocal_links], labels=['Local Links', 'Nonlocal Links'], colors=colors,
+            autopct='%1.1f%%')
     plt.title('Local vs Nonlocal Links')
     plt.savefig(f'static/{folder_name}/local_vs_nonlocal.png')
     plt.clf()
@@ -53,8 +57,10 @@ def save_page_dashboard(landing_page):
         plt.clf()
 
     # visualize the page and the image loading times from the api response
-    sns.barplot(x=['Page Load Time', 'Image Load Time'], y=[landing_page['load_page_time'], landing_page['check_imgs_time']])
-    sns.boxplot(x=['Page Load Time', 'Image Load Time'], y=[landing_page['load_page_time'], landing_page['check_imgs_time']])
+    # sns.barplot(x=['Page Load Time', 'Image Load Time'],
+    #             y=[landing_page['load_page_time'], landing_page['check_imgs_time']])
+    sns.boxplot(x=['Page Load Time', 'Image Load Time'],
+                y=[landing_page['load_page_time'], landing_page['check_imgs_time']])
     plt.xlabel('Load Time')
     plt.ylabel('Time (in seconds)')
     plt.title('Page and Image Load Times')
