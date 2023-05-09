@@ -140,6 +140,27 @@ def parse_links_sorted(root, html, keywords):
 def get_links(url):
     res = request.urlopen(url)
     return list(parse_links(url, res.read()))
+            
+def check_link(url, response, warnings, errors):
+    '''
+    Checks whether any HTTPErrors occurred when sending GET request to a url.
+    :param url: the url to which the GET request was sent
+    :param response: the response to the request
+    :param warnings: list of warnings
+    :param errors: list of errors
+    :return list of warnings, list of errors, boolean indicating whether request was successful
+    '''
+    try:
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        if e.code == 401:
+            warnings.append(f'Accessing link {url} requires authentication, is this intended?')
+        else:
+            errors.append(f'Opening link {url} resulted in HTTP Error with status \
+                          code {response.status_code}: {response.reason}')
+        return warnings, errors, False
+    
+    return warnings, errors, True
 
 
 def crawl(root, wanted_content=None, within_domain=True, num_link=10, keywords=None):
