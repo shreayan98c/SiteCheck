@@ -28,7 +28,7 @@ def main(url: str, depth: int, visited: set, api_responses: list):
         if not ok:
             return api_responses
     except requests.exceptions.RequestException as e:
-        errors.append(e)
+        errors.append(str(e))
         return api_responses
         
     soup = BeautifulSoup(response.text, 'html.parser')
