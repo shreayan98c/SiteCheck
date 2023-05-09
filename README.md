@@ -38,6 +38,22 @@ To run the test functions without the interface:
 python main.py
 ```
 
+## Applications
+
+1. Broken Links/Tags detection on the website
+2. Find out missing images or images that are not displaying properly
+3. Get a compliance report for the website whether it meets the standards or not
+4. Get suggestions for increasing the usability and accessibility of the website
+5. Get an hierarchy of the website in the form of a tree and check easy of navigation
+
+## Extensions
+
+1. Check permission and cookies and access to see if resources are accessible or not
+2. Flag all the non trusted links and do not recursively traverse them
+3. Further detailed analyses and reports for the website in form of drilldown charts
+4. Interactive interface and charts for the users to drill down
+
+
 ## License
 
 This project is licensed under the terms of the MIT license.
