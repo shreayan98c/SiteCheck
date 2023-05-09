@@ -5,7 +5,7 @@
     checks your websites for broken links, missing images, and other issues.</h3>
 
 <div class="container-sm">
-    <form method="post" style="margin-top:5%;" action="/dashboard">
+    <form method="post" style="margin-top:5%;" action="{{ url_for('dashboard') }}">
         <div class="form-group">
             <label style="margin-top:3%;" for="input_url">URL</label>
             <input type="text" class="form-control" name="input_url" id="input_url" style="margin-top:0.5%;"
@@ -13,8 +13,10 @@
             <label style="margin-top:3%;" for="depth">Depth</label>
             <input type="text" class="form-control" name="depth" id="depth" style="margin-top:0.5%;"
                    placeholder="Enter the depth">
+            <input type="hidden" class="form-control" name="selected_option" id="selected_option" value="0"
+                   style="margin-top:0.5%;">
         </div>
-         <button type="submit" class="btn btn-primary" style="margin-top:2%;">Submit</button>
+        <button type="submit" class="btn btn-primary" style="margin-top:2%;">Submit</button>
     </form>
 </div>
 {% endblock %}

@@ -6,7 +6,7 @@ import time
 import pickle
 import logging
 import requests
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from skimage import io
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -78,8 +78,11 @@ def check_image(img_tag, url, working_imgs, warnings, errors):
     except:
         errors.append(f'Unable to access the image on the server')
     if response and response.status_code == 200:
-        with Image.open(response.raw) as img:
-            working_imgs.append(img.size)
+        try:
+            with Image.open(response.raw) as img:
+                working_imgs.append(img.size)
+        except UnidentifiedImageError:
+            errors.append(f'Unable to open the image using PIL')
     else:
         # write error to the error file
         error_message = f'Broken image found on line {img_line} with {img_tag}'

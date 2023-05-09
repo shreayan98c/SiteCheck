@@ -1,7 +1,9 @@
 import json
 import pickle
 from app_utils import save_page_dashboard
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request
+
+from main import main
 
 app = Flask(__name__)
 
@@ -15,10 +17,10 @@ def hello_world():
 def dashboard():
     if request.method == 'POST':
         input_url = request.form.get('input_url')
-        depth = request.form.get('depth')
+        depth = int(request.form.get('depth'))
+        selected_option = int(list(request.form.values())[-1])
 
-        with open('api.pkl', 'rb') as inp:
-            api_response = pickle.load(inp)
+        api_response = main(input_url, depth, set(), [])
 
         # add the indexes to each entry of the api_response with key as 'index'
         for i in range(len(api_response)):
@@ -30,10 +32,8 @@ def dashboard():
         for pg in api_response:
             save_page_dashboard(pg)
 
-        api_response = api_response[1:]
-
         return render_template('dashboard.html', input_url=input_url, depth=depth,
-                               hierarchy_pprint=hierarchy_pprint,
+                               hierarchy_pprint=hierarchy_pprint, selected_option=selected_option,
                                landing_page=landing_page, responses=api_response)
 
 
