@@ -1,6 +1,6 @@
 import json
 import pickle
-from app_utils import save_landing_page_dashboard
+from app_utils import save_page_dashboard
 from flask import Flask, render_template, request, redirect, url_for, flash
 
 app = Flask(__name__)
@@ -25,11 +25,12 @@ def dashboard():
             api_response[i]['index'] = i
 
         landing_page = api_response[0]
-        api_response = api_response[1:]
-
         hierarchy_pprint = json.dumps(landing_page['hierarchy'], indent=4)
 
-        save_landing_page_dashboard(landing_page)
+        for pg in api_response:
+            save_page_dashboard(pg)
+
+        api_response = api_response[1:]
 
         return render_template('dashboard.html', input_url=input_url, depth=depth,
                                hierarchy_pprint=hierarchy_pprint,

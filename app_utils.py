@@ -5,9 +5,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
-def save_landing_page_dashboard(landing_page):
+def save_page_dashboard(landing_page):
     """
-    Saves the landing page vizualization in the static folder
+    Saves the landing page visualization in the static folder
     :param landing_page: a dictionary containing the landing page information
     :return: None
     """
@@ -35,14 +35,22 @@ def save_landing_page_dashboard(landing_page):
     plt.clf()
 
     # plot a bar chart with keys on the x-axis and values on the y-axis
-    if len(landing_page['lang_counts'].keys()) > 10:
-        landing_page['lang_counts'] = dict(islice(landing_page['lang_counts'].items(), 0, 10))
-    sns.barplot(x=list(landing_page['lang_counts'].keys()), y=list(landing_page['lang_counts'].values()))
-    plt.xlabel('Languages')
-    plt.ylabel('Count')
-    plt.title('Language Counts')
-    plt.savefig(f'static/{folder_name}/lang_counts.png')
-    plt.clf()
+    if landing_page['lang_counts']:
+        if len(landing_page['lang_counts'].keys()) > 10:
+            landing_page['lang_counts'] = dict(islice(landing_page['lang_counts'].items(), 0, 10))
+        sns.barplot(x=list(landing_page['lang_counts'].keys()), y=list(landing_page['lang_counts'].values()))
+        plt.xlabel('Languages')
+        plt.ylabel('Count')
+        plt.title('Language Counts')
+        plt.savefig(f'static/{folder_name}/lang_counts.png')
+        plt.clf()
+    else:
+        sns.barplot(x=['en'], y=[1])
+        plt.xlabel('Languages')
+        plt.ylabel('Count')
+        plt.title('Language Counts')
+        plt.savefig(f'static/{folder_name}/lang_counts.png')
+        plt.clf()
 
     # visualize the page and the image loading times from the api response
     sns.barplot(x=['Page Load Time', 'Image Load Time'], y=[landing_page['load_page_time'], landing_page['check_imgs_time']])
