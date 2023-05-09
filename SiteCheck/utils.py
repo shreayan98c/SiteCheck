@@ -162,6 +162,9 @@ def check_link(url, response, warnings, errors):
             errors.append(f'Opening link {url} resulted in HTTP Error with status \
                           code {response.status_code}: {response.reason}')
         return warnings, errors, False
+    except requests.exceptions.RequestException as e:
+        errors.append(e)
+        return warnings, errors, False
     
     return warnings, errors, True
 
