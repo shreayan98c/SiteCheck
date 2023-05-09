@@ -21,7 +21,16 @@ def main(url: str, depth: int, visited: set, api_responses: list):
     api = {'current_url': url}
 
     start_time = time.time()
-    response = requests.get(url)
+    warnings, errors = [], []
+    try:
+        response = requests.get(url)
+        warnings, errors, ok = check_link(url, response, warnings, errors)
+        if not ok:
+            return api_responses
+    except requests.exceptions.RequestException as e:
+        errors.append(e)
+        return api_responses
+        
     soup = BeautifulSoup(response.text, 'html.parser')
     response_time = time.time() - start_time
     api['load_page_time'] = response_time
@@ -34,7 +43,7 @@ def main(url: str, depth: int, visited: set, api_responses: list):
     writelines('outputs/images.txt', images)
 
     start_time = time.time()
-    working_imgs, warnings, errors = [], [], []
+    working_imgs = []
     for image in images:
         working_imgs, warnings, errors = check_image(img_tag=image, url=url, working_imgs=working_imgs,
                                                      warnings=warnings, errors=errors)
@@ -65,6 +74,16 @@ def main(url: str, depth: int, visited: set, api_responses: list):
     api['hierarchy'] = remove_empty_keys(hierarchy)
 
     api_responses.append(api)
+    
+    # send get request to nonlocal links and check response
+    for link in nonlocal_links:
+        if link not in visited:
+            visited.add(link)
+            try:
+                link_response = requests.get(link)
+                warnings, errors, ok = check_link(link, link_response, warnings, errors)
+            except requests.exceptions.RequestException as e:
+                errors.append(e)
 
     for link in local_links:
         api_responses = main(link, depth - 1, visited, api_responses)
