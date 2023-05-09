@@ -165,67 +165,6 @@ def check_link(url, response, warnings, errors):
     
     return warnings, errors, True
 
-
-def crawl(root, wanted_content=None, within_domain=True, num_link=10, keywords=None):
-    """
-    Crawl the url specified by `root`.
-    `wanted_content` is a list of content types to crawl
-    `within_domain` specifies whether the crawler should limit itself to the domain of `root`
-    """
-    queue = PriorityQueue()
-    queue.put((relevance_func(root, keywords), root))
-
-    visited = set()
-    inaccessible = set()
-    extracted = []
-
-    wanted_content = [] if wanted_content is None else wanted_content
-    keywords = [] if keywords is None else keywords
-
-    while not queue.empty():
-        if len(visited) > num_link:
-            break
-        rank, url = queue.get()
-        try:
-            req = request.urlopen(url)
-            wanted_content = [x.lower() for x in wanted_content]
-            content = req.headers['Content-Type'].lower()
-            if wanted_content and (content not in wanted_content):
-                continue
-            html = req.read().decode('utf-8')
-
-            visited.add(url)
-            visitlog.debug(url)
-
-            if parse.urlparse(url).hostname == parse.urlparse(root).hostname:
-                for (rank, link), title in parse_links_sorted(url, html, keywords):
-                    if (link in visited) or (link in inaccessible) or (parse.urlparse(link) == parse.urlparse(root)):
-                        continue
-                    queue.put((rank, link))
-
-        except error.HTTPError as e:
-            inaccessible.add(url)
-            if not os.path.exists('outputs'): os.mkdir('outputs')
-            if e.code == 401:
-                warning_message = [f'Accessing link {url} requires authentication, is this intended?']
-                writelines('outputs/warnings.txt', warning_message)
-            else:
-                error_message = [f'Opening link {url} resulted in HTTP Error with status code {e.code}: {e.reason}']
-                writelines('outputs/errors.txt', error_message)
-
-        except error.URLError as e:
-            inaccessible.add(url)
-            if not os.path.exists('outputs'): os.mkdir('outputs')
-            error_message = [f'Opening link {url} resulted in URL Error: {e.reason}']
-            writelines('outputs/errors.txt', error_message)
-
-        except Exception as e:
-            inaccessible.add(url)
-            print(e, url)
-
-    return visited, extracted, inaccessible
-
-
 def build_url_hierarchy(urls):
     hierarchy = {}
     for url in urls:
