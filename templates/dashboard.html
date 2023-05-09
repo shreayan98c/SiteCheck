@@ -1,8 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-<h3 style="margin-top:3%;">URL submitted: {{ input_url }}</h3>
-<h3 style="margin-top:3%;">Depth: {{ depth }}</h3>
-{% for response in responses %}
-<p> {{ response }} </p>
-{% endfor %}
+<h4 style="margin-top:3%;">URL submitted: <a href="{{ input_url }}"></a> with a depth of {{ depth }}</h4>
+<p> Time taken to load {{ landing_page['load_page_time'] }} </p>
+
+<h4> Hierarchy </h4>
+<pre> {{ hierarchy_pprint }} </pre>
+
+<p> {{ landing_page }} </p>
+
 {% endblock %}

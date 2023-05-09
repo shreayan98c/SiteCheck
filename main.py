@@ -62,7 +62,7 @@ def main(url: str, depth: int, visited: set, api_responses: list):
     api['accessibility_violations'] = violations
 
     hierarchy = build_url_hierarchy(local_links)
-    api['hierarchy'] = hierarchy
+    api['hierarchy'] = remove_empty_keys(hierarchy)
 
     api_responses.append(api)
 

@@ -178,7 +178,7 @@ def crawl(root, wanted_content=None, within_domain=True, num_link=10, keywords=N
                     if (link in visited) or (link in inaccessible) or (parse.urlparse(link) == parse.urlparse(root)):
                         continue
                     queue.put((rank, link))
-                    
+
         except error.HTTPError as e:
             inaccessible.add(url)
             if not os.path.exists('outputs'): os.mkdir('outputs')
@@ -188,13 +188,13 @@ def crawl(root, wanted_content=None, within_domain=True, num_link=10, keywords=N
             else:
                 error_message = [f'Opening link {url} resulted in HTTP Error with status code {e.code}: {e.reason}']
                 writelines('outputs/errors.txt', error_message)
-                
+
         except error.URLError as e:
             inaccessible.add(url)
             if not os.path.exists('outputs'): os.mkdir('outputs')
             error_message = [f'Opening link {url} resulted in URL Error: {e.reason}']
             writelines('outputs/errors.txt', error_message)
-            
+
         except Exception as e:
             inaccessible.add(url)
             print(e, url)
@@ -307,6 +307,22 @@ def eval_accessibility(url):
         violations.append((vio_id, description, vio_help, impact))
 
     return violations
+
+
+def remove_empty_keys(d):
+    """
+    Remove empty keys from a dictionary
+    :param d: dictionary to remove empty keys from
+    :return: dictionary with empty keys removed
+    """
+    if '' in d:
+        d = d['']
+    for k, v in list(d.items()):
+        if k == '':
+            del d[k]
+        else:
+            remove_empty_keys(v)
+    return d
 
 
 def writelines(filename, data):
