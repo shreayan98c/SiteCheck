@@ -155,15 +155,13 @@ def check_link(url, response, warnings, errors):
     '''
     try:
         response.raise_for_status()
-    except requests.exceptions.HTTPError as e:
-        if e.code == 401:
+    except requests.exceptions.HTTPError:
+        status = response.status_code
+        if status == 401:
             warnings.append(f'Accessing link {url} requires authentication, is this intended?')
         else:
             errors.append(f'Opening link {url} resulted in HTTP Error with status \
-                          code {response.status_code}: {response.reason}')
-        return warnings, errors, False
-    except requests.exceptions.RequestException as e:
-        errors.append(e)
+                          code {status}: {response.reason}')
         return warnings, errors, False
     
     return warnings, errors, True

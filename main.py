@@ -22,9 +22,13 @@ def main(url: str, depth: int, visited: set, api_responses: list):
 
     start_time = time.time()
     warnings, errors = [], []
-    response = requests.get(url)
-    warnings, errors, ok = check_link(url, response, warnings, errors)
-    if not ok:
+    try:
+        response = requests.get(url)
+        warnings, errors, ok = check_link(url, response, warnings, errors)
+        if not ok:
+            return api_responses
+    except requests.exceptions.RequestException as e:
+        errors.append(e)
         return api_responses
         
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -75,8 +79,11 @@ def main(url: str, depth: int, visited: set, api_responses: list):
     for link in nonlocal_links:
         if link not in visited:
             visited.add(link)
-            link_response = requests.get(link)
-            warnings, errors, ok = check_link(link, link_response, warnings, errors)
+            try:
+                link_response = requests.get(link)
+                warnings, errors, ok = check_link(link, link_response, warnings, errors)
+            except requests.exceptions.RequestException as e:
+                errors.append(e)
 
     for link in local_links:
         api_responses = main(link, depth - 1, visited, api_responses)
