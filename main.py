@@ -85,6 +85,9 @@ def main(url: str, depth: int, visited: set, api_responses: list):
             except requests.exceptions.RequestException as e:
                 errors.append(str(e))
 
+    api['warnings'] = warnings
+    api['errors'] = errors
+
     for link in local_links:
         api_responses = main(link, depth - 1, visited, api_responses)
 

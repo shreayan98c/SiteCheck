@@ -37,6 +37,26 @@
     {% endfor %}
 </table>
 
+{% if responses[selected_option]['errors'] %}
+<h4 style="margin-top:1%;"> Found following errors on the page: </h4>
+<ul>
+    {% for err in responses[selected_option]['errors'] %}
+    <li><p> {{ err }} </p></li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% if responses[selected_option]['warnings'] %}
+<h4 style="margin-top:1%;"> Warnings: </h4>
+<ul>
+    {% for err in responses[selected_option]['warnings'] %}
+    <li><p> {{ err }} </p></li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<br>
+
 <img src="static/{{selected_option}}/local_vs_nonlocal.png" class="img-fluid" alt="Local and non-local links"
      width="500" height="500">
 <img src="static/{{selected_option}}/tag_counts.png" class="img-fluid" alt="Tag counts on page"
